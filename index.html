@@ -730,12 +730,6 @@ document.addEventListener('keydown', e => {
   if (['ArrowUp','ArrowDown','PageUp','PageDown','Home','End'].includes(e.key)) e.preventDefault();
 });
 
-// ── Hash ──
-async function hash(s) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
-}
-
 // ── Session ──
 const SK = "qs_u";
 let curUser = null;
@@ -762,7 +756,7 @@ window.doLogin = async () => {
   try {
     const s=await get(child(ref(db),`users/${nick}`));
     if (!s.exists()){el.textContent="Мұндай пайдаланушы жоқ.";return;}
-    if (s.val().password!==await hash(pwd)){el.textContent="Құпиясөз қате.";return;}
+    if (s.val().password!==pwd){el.textContent="Құпиясөз қате.";return;}
     saveS(nick); enter(nick);
   } catch(e){el.textContent="Қате орын алды.";console.error(e);}
 };
@@ -780,7 +774,7 @@ window.doReg = async () => {
   try {
     const s=await get(child(ref(db),`users/${nick}`));
     if (s.exists()){el.textContent="Бұл НИК бос емес.";return;}
-    await set(ref(db,`users/${nick}`),{password:await hash(pwd),nick,createdAt:Date.now()});
+    await set(ref(db,`users/${nick}`),{password:pwd,nick,createdAt:Date.now()});
     saveS(nick); enter(nick);
   } catch(e){el.textContent="Тіркелу кезінде қате.";console.error(e);}
 };
